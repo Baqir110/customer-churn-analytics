@@ -1,0 +1,8 @@
+services:
+  churn-analytics-api:
+    build: .
+    container_name: customer_churn_analytics
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
