@@ -8,6 +8,11 @@ from app.services.strategy import get_retention_strategy
 router = APIRouter()
 
 
+@router.get("/health", tags=["health"])
+async def health_check():
+    return {"status": "healthy", "service": "customer-churn-analytics"}
+
+
 @router.post("/predict", response_model=PredictionResponse)
 async def predict_churn(features: CustomerFeatures):
     try:
