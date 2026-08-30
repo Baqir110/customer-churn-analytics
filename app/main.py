@@ -3,11 +3,11 @@ from app.api.endpoints import router as api_router
 
 app = FastAPI(
     title="Customer Churn Analytics API",
-    version="1.0.0",
-    description="Machine learning prediction service for evaluating customer churn risk and prescribing retention actions."
+    version="1.0.0"
 )
 
-app.include_router(api_router, prefix="/api/v1/churn", tags=["Churn Analytics"])
+# This sets the URL path to /api/v1/churn/predict
+app.include_router(api_router, prefix="/api/v1/churn", tags=["churn"])
 
 if __name__ == "__main__":
     import uvicorn
