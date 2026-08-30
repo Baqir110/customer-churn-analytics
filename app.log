@@ -1,0 +1,3 @@
+2026-08-30 16:10:35,581 - churn_analytics - INFO - Prediction completed - Tenure: 2m | Risk: CRITICAL | Prob: 0.96
+2026-08-30 16:10:35,629 - churn_analytics - INFO - Prediction completed - Tenure: 60m | Risk: LOW | Prob: 0.0
+2026-08-30 16:11:41,295 - churn_analytics - INFO - Prediction completed - Tenure: 12m | Risk: CRITICAL | Prob: 0.72

@@ -3,8 +3,19 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    container_name: customer_churn_analytics
+    container_name: customer_churn_analytics_api
     ports:
       - "8000:8000"
     volumes:
       - ./data:/app/data
+
+  churn-analytics-dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: customer_churn_analytics_dashboard
+    command: streamlit run dashboard/app.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    depends_on:
+      - churn-analytics-api
