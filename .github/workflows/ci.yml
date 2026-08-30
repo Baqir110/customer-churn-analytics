@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -22,8 +22,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Train model
+      - name: Train ML model
         run: python -m app.ml.train
 
-      - name: Run Pytest
-        run: python -m pytest
+      - name: Run Pytest with Coverage
+        run: python -m pytest --cov=app tests/
