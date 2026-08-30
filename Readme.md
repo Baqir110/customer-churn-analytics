@@ -6,9 +6,9 @@
 
 ## 🌐 Live Production Deployments
 
-- **📊 Interactive UI Dashboard**: [https://customer-churn-dashboard.onrender.com](https://customer-churn-dashboard.onrender.com)
-- **⚡ REST API Documentation (Swagger UI)**: [https://customer-churn-api-ahwc.onrender.com/docs](https://customer-churn-api-ahwc.onrender.com/docs)
-- **💚 API Health Check**: [https://customer-churn-api-ahwc.onrender.com/api/v1/churn/health](https://customer-churn-api-ahwc.onrender.com/api/v1/churn/health)
+- **📊 Interactive UI Dashboard**: https://customer-churn-dashboard-1mrz.onrender.com
+- **⚡ REST API Documentation (Swagger UI)**: https://customer-churn-api-ahwc.onrender.com/docs
+- **💚 API Health Check**: https://customer-churn-api-ahwc.onrender.com/api/v1/churn/health
 
 ---
 
