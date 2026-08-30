@@ -1,3 +1,5 @@
+import os
+
 import requests
 import streamlit as st
 
@@ -28,7 +30,10 @@ with col2:
         "Support Tickets Opened", min_value=0, max_value=15, value=3
     )
 
-API_URL = "http://127.0.0.1:8000/api/v1/churn/predict"
+# Fallback to live Render API URL if env variable is not set
+API_URL = os.getenv(
+    "API_URL", "https://customer-churn-api-ahwc.onrender.com/api/v1/churn/predict"
+)
 
 if st.button("Calculate Churn Risk", type="primary"):
     payload = {
