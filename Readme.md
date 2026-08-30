@@ -1,5 +1,15 @@
 # Customer Churn Analytics API
 
+![Build Status](https://github.com/Baqir110/customer-churn-analytics/actions/workflows/ci.yml/badge.svg)
+
+---
+
+## 🌐 Live Production Deployments
+
+- **📊 Interactive UI Dashboard**: [https://customer-churn-dashboard.onrender.com](https://customer-churn-dashboard.onrender.com)
+- **⚡ REST API Documentation (Swagger UI)**: [https://customer-churn-api-ahwc.onrender.com/docs](https://customer-churn-api-ahwc.onrender.com/docs)
+- **💚 API Health Check**: [https://customer-churn-api-ahwc.onrender.com/api/v1/churn/health](https://customer-churn-api-ahwc.onrender.com/api/v1/churn/health)
+
 ---
 
 ## 📋 Table of Contents
@@ -16,7 +26,7 @@
   - [Running the Application](#running-the-application)
 - [Interactive Dashboard](#interactive-dashboard)
 - [Load Testing & Benchmarks](#load-testing--benchmarks)
-- [Docker Deployment](#docker-deployment)
+- [Docker & Cloud Deployment](#docker--cloud-deployment)
 - [API Reference](#api-reference)
 - [Testing & Quality Checks](#testing--quality-checks)
 - [Configuration](#configuration)
@@ -35,7 +45,7 @@ This service enables businesses to:
 - **Proactively identify** customers at risk of churning.
 - **Automate retention workflows** by integrating predictions into CRM systems.
 - **Reduce churn rates** through targeted, data-driven interventions.
-- **Operationalize ML** with automated logging, testing, formatting, and load benchmarks.
+- **Operationalize ML** with automated logging, testing, telemetry, formatting, and load benchmarks.
 
 ---
 
@@ -53,30 +63,33 @@ This service enables businesses to:
 
 ```mermaid
 flowchart TB
-    subgraph Input
-        M[Customer Metrics<br/>Tenure / Charges / Support Tickets]
+    subgraph Client ["Frontend & Users"]
+        UI["Streamlit Dashboard<br/>(Render Host)"]
+        SWAGGER["Swagger UI / REST Clients<br/>(/docs)"]
     end
 
-    subgraph Processing
-        API[FastAPI Endpoint]
-        SC[Standard Scaler<br/>Feature Normalization]
-        RF[Random Forest Classifier<br/>Churn Prediction]
+    subgraph Backend ["FastAPI Microservice (Render Docker Host)"]
+        API["FastAPI App"]
+        HEALTH["/health Route"]
+        METRICS["/metrics Route<br/>(Prometheus Instrumentator)"]
+
+        subgraph Pipeline ["Inference Pipeline"]
+            SC["Standard Scaler<br/>Feature Normalization"]
+            RF["Random Forest Classifier<br/>Churn Prediction"]
+        end
+
+        RULE["Strategy Engine<br/>Risk Triage & Retention Rules"]
     end
 
-    subgraph Output
-        PRED[Churn Prediction<br/>0 or 1]
-        PROB[Churn Probability<br/>0.0 - 1.0]
-        RISK[Risk Level<br/>CRITICAL / MODERATE / LOW]
-        STRAT[Retention Strategy<br/>Actionable Recommendations]
-    end
+    UI -->|"POST /predict"| API
+    SWAGGER -->|"POST /predict"| API
 
-    M --> API
     API --> SC
     SC --> RF
-    RF --> PRED
-    RF --> PROB
-    PROB --> RISK
-    RISK --> STRAT
+    RF --> RULE
+
+    API --- HEALTH
+    API --- METRICS
 
 ```
 
@@ -102,11 +115,11 @@ Categorizes customers into `CRITICAL`, `MODERATE`, or `LOW` risk tiers based on 
 * **📝 Prescriptive Retention**
 Recommends specific action items (discounts, surveys, engagement calls) mapped to each risk tier.
 * **🖥️ Interactive UI Dashboard**
-Includes a Streamlit web app for real-time risk triage and parameter simulation.
+Includes a Streamlit web app hosted live for real-time risk triage and parameter simulation.
 * **📈 Load Tested Performance**
-Locust benchmarking framework configured for concurrency and throughput evaluation.
-* **🐳 Containerized & CI/CD Ready**
-Multi-container Docker Compose setup with `pytest` (92% coverage), `pre-commit` hooks, and GitHub Actions CI.
+Locust benchmarking framework configured for concurrency and throughput evaluation against live or local hosts.
+* **🐳 Containerized & Cloud Ready**
+Multi-container Docker Compose setup with `pytest` (92% coverage), `pre-commit` hooks, and automated Render production deployments via GitHub Actions.
 
 ---
 
@@ -114,16 +127,17 @@ Multi-container Docker Compose setup with `pytest` (92% coverage), `pre-commit` 
 
 | Category | Technology | Version |
 | --- | --- | --- |
-| **Language** | Python | 3.11+ / 3.13 |
+| **Language** | Python | 3.11+ |
 | **Web Framework** | FastAPI, Uvicorn | 0.110+ |
 | **Frontend UI** | Streamlit | 1.32+ |
 | **ML Libraries** | Scikit-Learn, Pandas, NumPy | 1.4+ |
 | **Model Serialization** | Joblib | 1.3+ |
 | **Data Validation** | Pydantic | 2.6+ |
+| **Telemetry** | Prometheus Instrumentator | 7.0+ |
 | **Testing & Coverage** | Pytest, Pytest-Cov, HTTPX | 8.1+ |
 | **Load Testing** | Locust | 2.24+ |
 | **Code Quality** | Black, Isort, Pre-Commit | - |
-| **Containerization** | Docker, Docker Compose | - |
+| **Containerization & Hosting** | Docker, Docker Compose, Render | - |
 | **CI/CD** | GitHub Actions | - |
 
 ---
@@ -140,7 +154,7 @@ customer-churn-analytics/
 │   ├── main.py                 # FastAPI application entry point
 │   ├── api/
 │   │   ├── __init__.py
-│   │   └── endpoints.py        # REST API route definitions
+│   │   └── endpoints.py        # REST API route definitions (/predict, /health)
 │   ├── core/
 │   │   ├── __init__.py
 │   │   ├── config.py           # Configuration settings
@@ -171,7 +185,6 @@ customer-churn-analytics/
 ├── .gitignore
 ├── .pre-commit-config.yaml
 ├── docker-compose.yml
-├── futuredev.txt
 ├── locustfile.py               # Locust load testing script
 ├── pyproject.toml              # Code formatting configuration
 ├── pytest.ini                  # Pytest configuration
@@ -193,35 +206,36 @@ customer-churn-analytics/
 ### Installation
 
 1. **Clone the repository**
+
 ```bash
-git clone [https://github.com/your-username/customer-churn-analytics.git](https://github.com/your-username/customer-churn-analytics.git)
+git clone [https://github.com/Baqir110/customer-churn-analytics.git](https://github.com/Baqir110/customer-churn-analytics.git)
 cd customer-churn-analytics
 
 ```
 
-
 2. **Create and activate a virtual environment**
+
 ```bash
 python -m venv venv
 
 ```
 
-
 **Windows (Command Prompt):**
+
 ```cmd
 venv\Scripts\activate
 
 ```
 
-
 **macOS / Linux:**
+
 ```bash
 source venv/bin/activate
 
 ```
 
-
 3. **Install dependencies and setup pre-commit hooks**
+
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
@@ -229,26 +243,20 @@ pre-commit install
 
 ```
 
-
 4. **Train the model**
+
 ```bash
 python -m app.ml.train
 
 ```
 
+This generates `data/churn_model.joblib` using `data/churn_data.csv`.
 
-This will generate `data/churn_model.joblib` using the dataset in `data/churn_data.csv`.
-5. **(Optional) Configure environment**
-```bash
-cp .env.example .env
-
-```
-
-
+---
 
 ### Running the Application
 
-Start the API server:
+Start the local FastAPI server:
 
 ```bash
 python -m app.main
@@ -256,37 +264,45 @@ python -m app.main
 ```
 
 Interactive API Documentation (Swagger UI):
-
 👉 [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ---
 
 ## 🖥️ Interactive Dashboard
 
-To run the Streamlit web app dashboard:
+To run the Streamlit web app locally:
 
 ```bash
 streamlit run dashboard/app.py
 
 ```
 
-Visit the UI via your browser at `http://localhost:8501` to dynamically adjust tenure, monthly charges, total charges, and support tickets for immediate churn risk evaluations.
+Visit the UI via your browser at `http://localhost:8501` to dynamically adjust tenure, monthly charges, total charges, and support tickets.
+
+Or test the live production dashboard directly:
+👉 [https://customer-churn-dashboard.onrender.com](https://customer-churn-dashboard.onrender.com)
 
 ---
 
 ## 🚀 Load Testing & Benchmarks
 
-To benchmark response performance under high concurrency:
+Run Locust to benchmark the API endpoint under high concurrency:
 
-1. Ensure your FastAPI server is running on `http://127.0.0.1:8000`.
-2. Launch Locust in another terminal:
+**Local Benchmark:**
+
 ```bash
-locust -f locustfile.py
+locust -f locustfile.py --host [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ```
 
+**Live Cloud Benchmark:**
 
-3. Open `http://localhost:8089` and execute a test with 50 concurrent users.
+```bash
+locust -f locustfile.py --host [https://customer-churn-api-ahwc.onrender.com](https://customer-churn-api-ahwc.onrender.com)
+
+```
+
+Open `http://localhost:8089` to control user swarming and view latency profiles.
 
 ### Benchmark Results
 
@@ -341,7 +357,7 @@ docker compose logs -f
 **Example Request (cURL)**:
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/churn/predict \
+curl -X POST [https://customer-churn-api-ahwc.onrender.com/api/v1/churn/predict](https://customer-churn-api-ahwc.onrender.com/api/v1/churn/predict) \
   -H "Content-Type: application/json" \
   -d '{
     "tenure_months": 2,
@@ -357,7 +373,7 @@ curl -X POST http://localhost:8000/api/v1/churn/predict \
 ```json
 {
   "churn_prediction": 1,
-  "churn_probability": 0.8425,
+  "churn_probability": 0.8,
   "risk_level": "CRITICAL",
   "retention_strategy": "Trigger priority outbound retention call and offer 20% renewal discount."
 }
@@ -392,10 +408,11 @@ python -m pytest --cov=app tests/
 
 ## ⚙️ Configuration
 
-Environment variables (loaded from `.env`):
+Environment variables (loaded from `.env` or cloud service parameters):
 
 | Variable | Description | Default |
 | --- | --- | --- |
+| `API_URL` | Endpoint path used by frontend dashboard | `https://customer-churn-api-ahwc.onrender.com/api/v1/churn/predict` |
 | `RISK_CRITICAL_THRESHOLD` | Probability threshold for CRITICAL tier | `0.65` |
 | `RISK_MODERATE_THRESHOLD` | Probability threshold for MODERATE tier | `0.35` |
 | `MODEL_PATH` | Path to serialized model pipeline | `data/churn_model.joblib` |
@@ -409,8 +426,8 @@ Environment variables (loaded from `.env`):
 Provides high interpretability, rapid execution, low memory overhead, and sub-30ms inference response times.
 2. **Joblib Serialization**
 Optimized for high efficiency when saving and loading Scikit-Learn pipelines and NumPy arrays.
-3. **Multi-Stage Containerization**
-Docker Compose orchestrates independent API and UI containers for development and deployment simplicity.
+3. **Multi-Service Architecture**
+Decouples FastAPI inference backend from the Streamlit UI, allowing each container to scale independently.
 4. **Rule-Based Triage Strategy Engine**
 Decouples risk tier assignment from raw ML predictions, allowing business logic changes without requiring model retraining.
 
@@ -418,11 +435,11 @@ Decouples risk tier assignment from raw ML predictions, allowing business logic 
 
 ## 🗺️ Roadmap
 
+* [x] Deploy live backend microservice and interactive UI frontend to Render.
+* [x] Instrument `/metrics` endpoint with Prometheus FastAPI Instrumentator.
 * [ ] Add **feature importance** endpoint (SHAP/LIME explanations).
 * [ ] Support **batch prediction** (CSV/JSON array uploads).
-* [ ] Integrate **retention strategy optimization** via reinforcement learning.
-* [ ] Add **real-time monitoring** with Prometheus metrics.
-* [ ] Implement **A/B testing** for strategy effectiveness.
+* [ ] Integrate **A/B testing framework** for retention campaign effectiveness.
 
 ---
 
@@ -436,4 +453,4 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/amazing-feature`).
 5. Open a Pull Request.
 
----
+```
