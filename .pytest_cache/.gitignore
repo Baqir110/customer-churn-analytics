@@ -22,3 +22,15 @@ app.log
 .idea/
 .DS_Store
 Thumbs.db
+
+# Generated ML artifacts, reports, and data
+*.html
+data/*.html
+data/*.joblib
+data/*.pkl
+data/*.csv
+
+# Load testing outputs
+*_stats.csv
+*_failures.csv
+*_exceptions.csv
