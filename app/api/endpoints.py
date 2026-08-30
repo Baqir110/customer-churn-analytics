@@ -8,7 +8,7 @@ from app.services.strategy import get_retention_strategy
 router = APIRouter()
 
 
-@router.get("/health", tags=["health"])
+@router.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "customer-churn-analytics"}
 
