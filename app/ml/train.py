@@ -1,14 +1,21 @@
 import os
+
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+from app.core.config import settings
+from app.core.logging import logger
 
 
-def train_churn_model():
+def train_model():
+    """Generates dataset, trains the Random Forest model, and saves the pipeline artifact."""
+    logger.info("Starting model training pipeline...")
+
     np.random.seed(42)
     n_samples = 1200
 
@@ -44,16 +51,20 @@ def train_churn_model():
     pipeline = Pipeline(
         [
             ("scaler", StandardScaler()),
-            ("classifier", RandomForestClassifier(n_estimators=100, random_state=42)),
+            (
+                "classifier",
+                RandomForestClassifier(n_estimators=100, random_state=42),
+            ),
         ]
     )
 
     pipeline.fit(X_train, y_train)
 
     os.makedirs("data", exist_ok=True)
-    joblib.dump(pipeline, "data/churn_model.joblib")
-    print("Model trained and exported to data/churn_model.joblib")
+    joblib.dump(pipeline, settings.MODEL_PATH)
+    logger.info(f"Model trained and exported to {settings.MODEL_PATH}")
+    return pipeline
 
 
 if __name__ == "__main__":
-    train_churn_model()
+    train_model()

@@ -1,7 +1,14 @@
+from typing import Dict, List, Optional
+
 from pydantic import BaseModel, Field
 
 
 class CustomerFeatures(BaseModel):
+    customer_id: Optional[str] = Field(
+        default=None,
+        description="Optional customer identification number",
+        json_schema_extra={"example": "CUST-1001"},
+    )
     tenure_months: int = Field(
         ...,
         ge=0,
@@ -29,6 +36,9 @@ class CustomerFeatures(BaseModel):
 
 
 class PredictionResponse(BaseModel):
+    customer_id: Optional[str] = Field(
+        default=None, json_schema_extra={"example": "CUST-1001"}
+    )
     churn_prediction: int = Field(
         ..., description="0 for Stay, 1 for Churn", json_schema_extra={"example": 1}
     )
@@ -46,6 +56,21 @@ class PredictionResponse(BaseModel):
         ...,
         description="Recommended action plan",
         json_schema_extra={
-            "example": "Trigger priority outbound retention call and offer 20% renewal discount."
+            "example": "Trigger priority outbound call with strategy: Variant_A_20_Percent_Discount."
         },
     )
+    ab_variant: str = Field(
+        ...,
+        description="Assigned experiment variant",
+        json_schema_extra={"example": "Variant_A_20_Percent_Discount"},
+    )
+
+
+class FeatureExplanationResponse(BaseModel):
+    customer_id: Optional[str]
+    feature_contributions: Dict[str, float]
+
+
+class BatchPredictionResponse(BaseModel):
+    total_records: int
+    predictions: List[PredictionResponse]

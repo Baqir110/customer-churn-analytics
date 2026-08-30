@@ -2,18 +2,21 @@ from app.services.strategy import get_retention_strategy
 
 
 def test_critical_risk_strategy():
-    risk, strategy = get_retention_strategy(0.85)
+    risk, strategy, ab_variant = get_retention_strategy(0.85)
     assert risk == "CRITICAL"
-    assert "20% renewal discount" in strategy
+    assert "retention call" in strategy.lower()
+    assert ab_variant == "Standard_Retention_Call"
 
 
 def test_moderate_risk_strategy():
-    risk, strategy = get_retention_strategy(0.50)
+    risk, strategy, ab_variant = get_retention_strategy(0.50)
     assert risk == "MODERATE"
-    assert "proactive service check-in" in strategy
+    assert "survey" in strategy.lower()
+    assert ab_variant == "Control_Survey"
 
 
 def test_low_risk_strategy():
-    risk, strategy = get_retention_strategy(0.20)
+    risk, strategy, ab_variant = get_retention_strategy(0.20)
     assert risk == "LOW"
-    assert "standard automated" in strategy
+    assert "standard" in strategy.lower()
+    assert ab_variant == "None"
